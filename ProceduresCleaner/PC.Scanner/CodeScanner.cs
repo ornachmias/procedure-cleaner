@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using PC.DataAccess;
 
@@ -24,24 +25,38 @@ namespace PC.Scanner
             _resultQueue = new ConcurrentQueue<ScanResult>();
         }
 
-        public IEnumerable<ScanResult> ScanCode(string rootDir, int threads = DefaultThreadsCount)
+        public void ScanCode(string rootDir, int threads = DefaultThreadsCount)
         {
             foreach (var filesPath in _codeRepository.GetCodeFilesPaths(rootDir))
             {
                 _filesQueue.Enqueue(filesPath);
             }
+
+            var storeProcedures = _storedProceduresRepository.GetStoreProceduresNames().ToList();
+
+            if (threads == DefaultThreadsCount)
+                threads = Environment.ProcessorCount;
+
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = threads
+            };
             
-            return null;
+            Parallel.Invoke(parallelOptions, () => ScanFile(storeProcedures));
         }
 
-        private void ScanFile(string filePath, List<string> searchPatterns)
+        private void ScanFile(List<string> searchPatterns)
         {
+            string filePath;
+
+            while (!_filesQueue.TryDequeue(out filePath)) { }
+
             if (!File.Exists(filePath))
                 return;
             
             string[] lines = File.ReadAllLines(filePath);
 
-            for (int i = 0; i < lines.Length; i++)
+            for (var i = 0; i < lines.Length; i++)
             {
                 foreach (var searchPattern in searchPatterns)
                 {
