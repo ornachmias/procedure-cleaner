@@ -1,4 +1,4 @@
-﻿namespace PC.Scanner
+﻿namespace PC.Common
 {
     public class ScanResult
     {

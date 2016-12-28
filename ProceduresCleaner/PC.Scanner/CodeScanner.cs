@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using PC.Common;
 using PC.DataAccess;
 
 namespace PC.Scanner
@@ -25,14 +26,14 @@ namespace PC.Scanner
             _resultQueue = new ConcurrentQueue<ScanResult>();
         }
 
-        public void ScanCode(string rootDir, int threads = DefaultThreadsCount)
+        public void ScanCode(string codeRootPath, string storedProcedureRootPath, int threads = DefaultThreadsCount)
         {
-            foreach (var filesPath in _codeRepository.GetCodeFilesPaths(rootDir))
+            foreach (var filesPath in _codeRepository.GetCodeFilesPaths(codeRootPath))
             {
                 _filesQueue.Enqueue(filesPath);
             }
 
-            var storeProcedures = _storedProceduresRepository.GetStoreProceduresNames().ToList();
+            var storeProcedures = _storedProceduresRepository.GetStoreProceduresNames(storedProcedureRootPath);
 
             if (threads == DefaultThreadsCount)
                 threads = Environment.ProcessorCount;
@@ -45,34 +46,17 @@ namespace PC.Scanner
             Parallel.Invoke(parallelOptions, () => ScanFile(storeProcedures));
         }
 
-        private void ScanFile(List<string> searchPatterns)
+        private void ScanFile(IEnumerable<string> searchPatterns)
         {
             string filePath;
 
             while (!_filesQueue.TryDequeue(out filePath)) { }
 
-            if (!File.Exists(filePath))
-                return;
-            
-            string[] lines = File.ReadAllLines(filePath);
+            var results = _codeRepository.SearchFile(filePath, searchPatterns);
 
-            for (var i = 0; i < lines.Length; i++)
+            foreach (var scanResult in results)
             {
-                foreach (var searchPattern in searchPatterns)
-                {
-                    if (lines[i].ToLower().Contains(searchPattern.ToLower()))
-                    {
-                        var scanResult = new ScanResult
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            Line = lines[i],
-                            SearchPattern = searchPattern,
-                            LineNumber = i
-                        };
-
-                        _resultQueue.Enqueue(scanResult);
-                    }
-                }
+                _resultQueue.Enqueue(scanResult);
             }
         }
     }

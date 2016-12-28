@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PC.Scanner", "PC.Scanner\PC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PC.DataAccess", "PC.DataAccess\PC.DataAccess.csproj", "{0E498DB8-DF61-4EE2-B44D-345EB1167A53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PC.Common", "PC.Common\PC.Common.csproj", "{A3D57B3E-19B4-4257-B9AE-3B07193E34F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0E498DB8-DF61-4EE2-B44D-345EB1167A53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E498DB8-DF61-4EE2-B44D-345EB1167A53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E498DB8-DF61-4EE2-B44D-345EB1167A53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3D57B3E-19B4-4257-B9AE-3B07193E34F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3D57B3E-19B4-4257-B9AE-3B07193E34F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3D57B3E-19B4-4257-B9AE-3B07193E34F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3D57B3E-19B4-4257-B9AE-3B07193E34F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

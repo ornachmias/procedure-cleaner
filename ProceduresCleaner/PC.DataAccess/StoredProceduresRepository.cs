@@ -1,12 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace PC.DataAccess
 {
     class StoredProceduresRepository : IStoredProceduresRepository
     {
-        public IEnumerable<string> GetStoreProceduresNames()
+        public IEnumerable<string> GetStoreProceduresNames(string rootPath)
         {
-            throw new System.NotImplementedException();
+            if (!Directory.Exists(rootPath))
+                throw new DirectoryNotFoundException(rootPath);
+
+            return Directory.GetFiles(rootPath, ".sql", SearchOption.AllDirectories);
         }
     }
 }

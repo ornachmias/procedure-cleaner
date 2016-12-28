@@ -4,6 +4,6 @@ namespace PC.DataAccess
 {
     public interface IStoredProceduresRepository
     {
-        IEnumerable<string> GetStoreProceduresNames();
+        IEnumerable<string> GetStoreProceduresNames(string rootPath);
     }
 }
