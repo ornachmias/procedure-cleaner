@@ -19,9 +19,9 @@ namespace PC.Tests
             var codeRepository = new Mock<ICodeRepository>();
 
             storedProcedureRepository.Setup(x => x.GetStoreProceduresNames(It.IsAny<string>()))
-                .Returns(new List<string> {"First_Stored_Procedure", "Second_Stored_Procedure" });
+                .Returns(new List<string> { "First_Stored_Procedure", "Second_Stored_Procedure" });
             codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>()))
-                .Returns(new List<string> {"FirstCodeFile"});
+                .Returns(new List<string> { "FirstCodeFile" });
             var scanResult = new ScanResult
             {
                 Id = "1",
@@ -31,7 +31,7 @@ namespace PC.Tests
             };
 
             codeRepository.Setup(x => x.SearchFile(It.IsAny<string>(), It.IsAny<IEnumerable<string>>()))
-                .Returns(new List<ScanResult> {scanResult});
+                .Returns(new List<ScanResult> { scanResult });
             var resultQueue = new ConcurrentQueue<ScanResult>();
             var codeScanner =
                 new CodeScanner(codeRepository.Object, storedProcedureRepository.Object);
