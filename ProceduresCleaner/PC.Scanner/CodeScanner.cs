@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using PC.Common;
@@ -14,24 +13,20 @@ namespace PC.Scanner
         public const int DefaultThreadsCount = -1;
         private readonly ICodeRepository _codeRepository;
         private readonly IStoredProceduresRepository _storedProceduresRepository;
-        private readonly ConcurrentQueue<string> _filesQueue;
-        private readonly ConcurrentQueue<ScanResult> _resultQueue;
+        private ConcurrentQueue<ScanResult> _resultQueue;
 
         public CodeScanner(ICodeRepository codeRepository, 
             IStoredProceduresRepository storedProceduresRepository)
         {
             _codeRepository = codeRepository;
             _storedProceduresRepository = storedProceduresRepository;
-            _filesQueue = new ConcurrentQueue<string>();
-            _resultQueue = new ConcurrentQueue<ScanResult>();
         }
 
-        public void ScanCode(string codeRootPath, string storedProcedureRootPath, int threads = DefaultThreadsCount)
+        public void ScanCode(string codeRootPath, string storedProcedureRootPath,
+            ConcurrentQueue<ScanResult> resultQueue, int threads = DefaultThreadsCount)
         {
-            foreach (var filesPath in _codeRepository.GetCodeFilesPaths(codeRootPath))
-            {
-                _filesQueue.Enqueue(filesPath);
-            }
+            _resultQueue = resultQueue;
+            IEnumerable<string> filesList = _codeRepository.GetCodeFilesPaths(codeRootPath);
 
             var storeProcedures = _storedProceduresRepository.GetStoreProceduresNames(storedProcedureRootPath);
 
@@ -42,22 +37,20 @@ namespace PC.Scanner
             {
                 MaxDegreeOfParallelism = threads
             };
-            
-            Parallel.Invoke(parallelOptions, () => ScanFile(storeProcedures));
+
+            Parallel.ForEach(filesList, parallelOptions, x => ScanFile(x, storeProcedures));
         }
 
-        private void ScanFile(IEnumerable<string> searchPatterns)
+        private void ScanFile(string filePath, IEnumerable<string> searchPatterns)
         {
-            string filePath;
+            var patterns = searchPatterns as IList<string> ?? searchPatterns.ToList();
 
-            while (!_filesQueue.TryDequeue(out filePath)) { }
-
-            var results = _codeRepository.SearchFile(filePath, searchPatterns);
+            var results = _codeRepository.SearchFile(filePath, patterns);
 
             foreach (var scanResult in results)
             {
                 _resultQueue.Enqueue(scanResult);
-            }
+            } 
         }
     }
 }

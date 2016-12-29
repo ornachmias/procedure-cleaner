@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace PC.DataAccess
 {
@@ -10,7 +11,8 @@ namespace PC.DataAccess
             if (!Directory.Exists(rootPath))
                 throw new DirectoryNotFoundException(rootPath);
 
-            return Directory.GetFiles(rootPath, ".sql", SearchOption.AllDirectories);
+            return Directory.GetFiles(rootPath, ".sql", SearchOption.AllDirectories)
+                    .Select(Path.GetFileNameWithoutExtension);
         }
     }
 }
