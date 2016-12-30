@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PC.DataAccess
 {
-    class StoredProceduresRepository : IStoredProceduresRepository
+    public class StoredProceduresRepository : IStoredProceduresRepository
     {
         public IEnumerable<string> GetStoreProceduresNames(string rootPath)
         {

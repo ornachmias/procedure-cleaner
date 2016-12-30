@@ -6,7 +6,7 @@ using PC.Common;
 
 namespace PC.DataAccess
 {
-    class CodeRepository : ICodeRepository
+    public class CodeRepository : ICodeRepository
     {
         public IEnumerable<string> GetCodeFilesPaths(string rootPath)
         {

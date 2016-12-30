@@ -13,7 +13,12 @@ namespace PC.Scanner
         public const int DefaultThreadsCount = -1;
         private readonly ICodeRepository _codeRepository;
         private readonly IStoredProceduresRepository _storedProceduresRepository;
-        private ConcurrentQueue<ScanResult> _resultQueue;
+
+        public CodeScanner()
+        {
+            _codeRepository = new CodeRepository();
+            _storedProceduresRepository = new StoredProceduresRepository();
+        }
 
         public CodeScanner(ICodeRepository codeRepository, 
             IStoredProceduresRepository storedProceduresRepository)
@@ -22,26 +27,45 @@ namespace PC.Scanner
             _storedProceduresRepository = storedProceduresRepository;
         }
 
-        public void ScanCode(string codeRootPath, string storedProcedureRootPath,
-            ConcurrentQueue<ScanResult> resultQueue, int threads = DefaultThreadsCount)
+        public IEnumerable<string> GetUnusedStoredProcedures(string codeRootPath, string storedProcedureRootPath, int threads = DefaultThreadsCount)
         {
-            _resultQueue = resultQueue;
-            IEnumerable<string> filesList = _codeRepository.GetCodeFilesPaths(codeRootPath);
-
-            var storeProcedures = _storedProceduresRepository.GetStoreProceduresNames(storedProcedureRootPath);
-
             if (threads == DefaultThreadsCount)
                 threads = Environment.ProcessorCount;
+
+            IEnumerable<string> storedProcedures =
+                _storedProceduresRepository.GetStoreProceduresNames(storedProcedureRootPath).ToList();
+            IEnumerable<ScanResult> scanResults = ScanCode(codeRootPath, storedProcedures, threads);
+
+            return FilterUnusedStoredProcedures(storedProcedures, scanResults);
+        }
+
+        private IEnumerable<ScanResult> ScanCode(string codeRootPath, IEnumerable<string> storedProcedures, int threads)
+        {
+            var resultQueue = new ConcurrentQueue<ScanResult>();
+            IEnumerable<string> filesList = _codeRepository.GetCodeFilesPaths(codeRootPath);
 
             var parallelOptions = new ParallelOptions
             {
                 MaxDegreeOfParallelism = threads
             };
 
-            Parallel.ForEach(filesList, parallelOptions, x => ScanFile(x, storeProcedures));
+            Parallel.ForEach(filesList, parallelOptions, x => ScanFile(x, storedProcedures, resultQueue));
+            return resultQueue.ToArray();
         }
 
-        private void ScanFile(string filePath, IEnumerable<string> searchPatterns)
+        private IEnumerable<string> FilterUnusedStoredProcedures(IEnumerable<string> storedProcedures, IEnumerable<ScanResult> scanResults)
+        {
+            Dictionary<string, int> results = storedProcedures.ToDictionary(s => s, s => 0);
+
+            foreach (ScanResult scanResult in scanResults)
+            {
+                results[scanResult.SearchPattern]++;
+            }
+
+            return results.Where(x => x.Value == 0).Select(x => x.Key);
+        }
+
+        private void ScanFile(string filePath, IEnumerable<string> searchPatterns, ConcurrentQueue<ScanResult> scanResults)
         {
             var patterns = searchPatterns as IList<string> ?? searchPatterns.ToList();
 
@@ -49,7 +73,7 @@ namespace PC.Scanner
 
             foreach (var scanResult in results)
             {
-                _resultQueue.Enqueue(scanResult);
+                scanResults.Enqueue(scanResult);
             } 
         }
     }
