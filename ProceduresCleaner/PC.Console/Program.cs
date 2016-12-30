@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using NDesk.Options;
+﻿using NDesk.Options;
 using PC.Scanner;
 
 namespace PC.Console
@@ -9,7 +8,14 @@ namespace PC.Console
         static void Main(string[] args)
         {
             var parameters = ParseArguments(args);
-            
+            var codeScanner = new CodeScanner();
+            var unusedProcedures = 
+                codeScanner.GetUnusedStoredProcedures(parameters.CodePath, parameters.StoredProceduresPath);
+
+            foreach (var procedure in unusedProcedures)
+            {
+                System.Console.WriteLine(procedure);
+            }
         }
 
         private static UserParameters ParseArguments(string[] args)

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -135,7 +133,6 @@ namespace PC.Tests
             codeRepository.Setup(x => x.SearchFile("SecondCodeFile", It.IsAny<IEnumerable<string>>()))
                 .Returns(new List<ScanResult> { scanResult2 });
 
-            var resultQueue = new ConcurrentQueue<ScanResult>();
             var codeScanner =
                 new CodeScanner(codeRepository.Object, storedProcedureRepository.Object);
 
