@@ -8,8 +8,12 @@ namespace PC.Console
         static void Main(string[] args)
         {
             var parameters = ParseArguments(args);
+
+            if (parameters == null)
+                return;
+
             var codeScanner = new CodeScanner();
-            var unusedProcedures = 
+            var unusedProcedures =
                 codeScanner.GetUnusedStoredProcedures(parameters.CodePath, parameters.StoredProceduresPath);
 
             foreach (var procedure in unusedProcedures)
@@ -35,19 +39,18 @@ namespace PC.Console
                 },
                 {
                     "h|help",
-                    v => showHelp = v != null
+                    v => showHelp = true
                 }
             };
 
             try
             {
-                if (!showHelp)
+                options.Parse(args);
+
+                if (showHelp)
                 {
                     PrintHelp();
-                }
-                else
-                {
-                    options.Parse(args);
+                    return null;
                 }
             }
             catch (OptionException ex)
@@ -65,6 +68,7 @@ namespace PC.Console
             System.Console.WriteLine("Required Parameters:");
             System.Console.WriteLine("s|sp");
             System.Console.WriteLine("Path to the Stored Procedures");
+            System.Console.WriteLine();
             System.Console.WriteLine("c|code");
             System.Console.WriteLine("Path to the code files");
         }
