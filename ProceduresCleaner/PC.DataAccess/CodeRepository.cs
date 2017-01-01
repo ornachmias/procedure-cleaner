@@ -2,18 +2,29 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using PC.Common;
 
 namespace PC.DataAccess
 {
     public class CodeRepository : ICodeRepository
     {
-        public IEnumerable<string> GetCodeFilesPaths(string rootPath)
+        public IEnumerable<string> GetCodeFilesPaths(string rootPath, string[] excludedFileTypes = null, string[] excludedDirectories = null)
         {
             if (!Directory.Exists(rootPath))
                 throw new DirectoryNotFoundException(rootPath);
 
-            return Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories);
+            string[] files = Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories);
+
+            if (excludedFileTypes != null)
+                files = files.Where(x => excludedFileTypes.All(y => !x.ToLower().EndsWith(y))).ToArray();
+
+            if (excludedDirectories != null)
+                files = files.Where(x => excludedDirectories.All(y=> !x.ToLower().Contains(y))).ToArray();
+
+            files = RemoveDuplicateFiles(files);
+
+            return files;
         }
 
         public IEnumerable<ScanResult> SearchFile(string path, IEnumerable<string> searchPatterns)
@@ -49,6 +60,35 @@ namespace PC.DataAccess
             }
 
             return results;
+        }
+
+        private string[] RemoveDuplicateFiles(string[] filePaths)
+        {
+            var filesHash = new HashSet<string>();
+            var result = new List<string>();
+
+            foreach (var filePath in filePaths)
+            {
+                var hash = CalculateFileHash(filePath);
+
+                if (filesHash.Contains(hash))
+                    continue;
+
+                filesHash.Add(hash);
+                result.Add(filePath);
+            }
+
+            return result.ToArray();
+        }
+
+        private string CalculateFileHash(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            {
+                SHA256CryptoServiceProvider sha = new SHA256CryptoServiceProvider();
+                byte[] hash = sha.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", string.Empty);
+            }
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using NDesk.Options;
+﻿using System.Configuration;
+using System.Linq;
+using NDesk.Options;
 using PC.Scanner;
 
 namespace PC.Console
@@ -12,9 +14,20 @@ namespace PC.Console
             if (parameters == null)
                 return;
 
+            var excludedFileTypes =
+                ConfigurationManager.AppSettings["ExcludedFileExtensions"].Split(';').Select(x => x.ToLower()).ToArray();
+            if (!excludedFileTypes.Any())
+                excludedFileTypes = null;
+
+            var excludedFolderPaths = 
+                ConfigurationManager.AppSettings["ExcludedFolderPaths"].Split(';').Select(x => x.ToLower()).ToArray();
+            if (!excludedFolderPaths.Any())
+                excludedFolderPaths = null;
+
             var codeScanner = new CodeScanner();
             var unusedProcedures =
-                codeScanner.GetUnusedStoredProcedures(parameters.CodePath, parameters.StoredProceduresPath);
+                codeScanner.GetUnusedStoredProcedures(parameters.CodePath, parameters.StoredProceduresPath, -1,
+                    excludedFileTypes, excludedFolderPaths);
 
             foreach (var procedure in unusedProcedures)
             {

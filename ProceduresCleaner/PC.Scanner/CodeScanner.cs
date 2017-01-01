@@ -27,22 +27,25 @@ namespace PC.Scanner
             _storedProceduresRepository = storedProceduresRepository;
         }
 
-        public IEnumerable<string> GetUnusedStoredProcedures(string codeRootPath, string storedProcedureRootPath, int threads = DefaultThreadsCount)
+        public IEnumerable<string> GetUnusedStoredProcedures(string codeRootPath, string storedProcedureRootPath,
+            int threads = DefaultThreadsCount, string[] excludedFileTypes = null, string[] excludedDirectories = null)
         {
             if (threads == DefaultThreadsCount)
                 threads = Environment.ProcessorCount;
 
             IEnumerable<string> storedProcedures =
                 _storedProceduresRepository.GetStoreProceduresNames(storedProcedureRootPath).ToList();
-            IEnumerable<ScanResult> scanResults = ScanCode(codeRootPath, storedProcedures, threads);
+            IEnumerable<ScanResult> scanResults = ScanCode(codeRootPath, storedProcedures, threads, excludedFileTypes, excludedDirectories);
 
             return FilterUnusedStoredProcedures(storedProcedures, scanResults);
         }
 
-        private IEnumerable<ScanResult> ScanCode(string codeRootPath, IEnumerable<string> storedProcedures, int threads)
+        private IEnumerable<ScanResult> ScanCode(string codeRootPath, IEnumerable<string> storedProcedures, 
+            int threads, string[] excludedFileTypes = null, string[] excludedDirectories = null)
         {
             var resultQueue = new ConcurrentQueue<ScanResult>();
-            IEnumerable<string> filesList = _codeRepository.GetCodeFilesPaths(codeRootPath);
+            IEnumerable<string> filesList = 
+                _codeRepository.GetCodeFilesPaths(codeRootPath, excludedFileTypes, excludedDirectories);
 
             var parallelOptions = new ParallelOptions
             {
