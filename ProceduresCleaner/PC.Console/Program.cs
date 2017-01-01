@@ -15,12 +15,18 @@ namespace PC.Console
                 return;
 
             var excludedFileTypes =
-                ConfigurationManager.AppSettings["ExcludedFileExtensions"].Split(';').Select(x => x.ToLower()).ToArray();
+                ConfigurationManager.AppSettings["ExcludedFileExtensions"]
+                .Split(';').Select(x => x.ToLower()).ToArray();
+
             if (!excludedFileTypes.Any())
                 excludedFileTypes = null;
 
             var excludedFolderPaths = 
-                ConfigurationManager.AppSettings["ExcludedFolderPaths"].Split(';').Select(x => x.ToLower()).ToArray();
+                ConfigurationManager.AppSettings["ExcludedFolderPaths"]
+                .Split(';').Select(x => x.ToLower()).ToArray();
+
+            excludedFolderPaths = excludedFolderPaths.Concat(parameters.ExcludedDirectories).ToArray();
+            
             if (!excludedFolderPaths.Any())
                 excludedFolderPaths = null;
 
@@ -49,6 +55,10 @@ namespace PC.Console
                 {
                     "s|sp=",
                     v => parameters.StoredProceduresPath = v
+                },
+                {
+                    "e|ex=",
+                    v => parameters.ExcludedDirectories = v.Split(',')
                 },
                 {
                     "h|help",
@@ -84,12 +94,16 @@ namespace PC.Console
             System.Console.WriteLine();
             System.Console.WriteLine("c|code");
             System.Console.WriteLine("Path to the code files");
+            System.Console.WriteLine();
+            System.Console.WriteLine("e|exclude");
+            System.Console.WriteLine("Partial directories paths separated by commas to exclude");
         }
 
         private class UserParameters
         {
             public string StoredProceduresPath { get; set; }
             public string CodePath { get; set; }
+            public string[] ExcludedDirectories { get; set; }
         }
     }
 }
