@@ -32,7 +32,7 @@ namespace PC.Console
 
             var codeScanner = new CodeScanner();
             var unusedProcedures =
-                codeScanner.GetUnusedStoredProcedures(parameters.CodePath, parameters.StoredProceduresPath, -1,
+                codeScanner.GetUnusedStoredProcedures(parameters.CodePath, parameters.StoredProceduresPath,
                     excludedFileTypes, excludedFolderPaths);
 
             foreach (var procedure in unusedProcedures)

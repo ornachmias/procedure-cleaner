@@ -20,7 +20,7 @@ namespace PC.Tests
 
             storedProcedureRepository.Setup(x => x.GetStoreProceduresNames(It.IsAny<string>()))
                 .Returns(new List<string> { "First_Stored_Procedure", "Second_Stored_Procedure" });
-            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>()))
+            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>(), null, null))
                 .Returns(new List<string> { "FirstCodeFile" });
             var scanResult = new ScanResult
             {
@@ -36,7 +36,7 @@ namespace PC.Tests
                 new CodeScanner(codeRepository.Object, storedProcedureRepository.Object);
 
             // Act
-            var result = codeScanner.GetUnusedStoredProcedures("dummyPath", "dummyPath", 1).ToList();
+            var result = codeScanner.GetUnusedStoredProcedures("dummyPath", "dummyPath").ToList();
 
             // Assert
             Assert.AreEqual(1, result.Count);
@@ -52,7 +52,7 @@ namespace PC.Tests
 
             storedProcedureRepository.Setup(x => x.GetStoreProceduresNames(It.IsAny<string>()))
                 .Returns(new List<string> { "First_Stored_Procedure", "Second_Stored_Procedure" });
-            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>()))
+            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>(), null, null))
                 .Returns(new List<string> { "FirstCodeFile" });
             codeRepository.Setup(x => x.SearchFile(It.IsAny<string>(), It.IsAny<IEnumerable<string>>()))
                 .Returns(new List<ScanResult>());
@@ -61,7 +61,7 @@ namespace PC.Tests
                 new CodeScanner(codeRepository.Object, storedProcedureRepository.Object);
 
             // Act
-            var result = codeScanner.GetUnusedStoredProcedures("dummyPath", "dummyPath", 1).ToList();
+            var result = codeScanner.GetUnusedStoredProcedures("dummyPath", "dummyPath").ToList();
 
             // Assert
             Assert.AreEqual(2, result.Count);
@@ -78,7 +78,7 @@ namespace PC.Tests
 
             storedProcedureRepository.Setup(x => x.GetStoreProceduresNames(It.IsAny<string>()))
                 .Returns(new List<string> { "First_Stored_Procedure", "Second_Stored_Procedure" });
-            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>()))
+            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>(), null, null))
                 .Returns(new List<string> { "FirstCodeFile" });
             var scanResult = new ScanResult
             {
@@ -94,7 +94,7 @@ namespace PC.Tests
                 new CodeScanner(codeRepository.Object, storedProcedureRepository.Object);
 
             // Act
-            var result = codeScanner.GetUnusedStoredProcedures("dummyPath", "dummyPath", 4).ToList();
+            var result = codeScanner.GetUnusedStoredProcedures("dummyPath", "dummyPath").ToList();
 
             // Assert
             Assert.AreEqual(1, result.Count);
@@ -110,7 +110,7 @@ namespace PC.Tests
 
             storedProcedureRepository.Setup(x => x.GetStoreProceduresNames(It.IsAny<string>()))
                 .Returns(new List<string> { "First_Stored_Procedure", "Second_Stored_Procedure" });
-            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>()))
+            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>(), null, null))
                 .Returns(new List<string> { "FirstCodeFile", "SecondCodeFile" });
             var scanResult1 = new ScanResult
             {
@@ -137,12 +137,14 @@ namespace PC.Tests
                 new CodeScanner(codeRepository.Object, storedProcedureRepository.Object);
 
             // Act
-            var result = codeScanner.GetUnusedStoredProcedures("dummyPath", "dummyPath", 1).ToList();
+            var result = codeScanner.GetUnusedStoredProcedures("dummyPath", "dummyPath").ToList();
 
             // Assert
             Assert.AreEqual(0, result.Count);
             codeRepository.Verify(x => x.SearchFile("FirstCodeFile", It.IsAny<IEnumerable<string>>()), Times.Once);
             codeRepository.Verify(x => x.SearchFile("SecondCodeFile", It.IsAny<IEnumerable<string>>()), Times.Once);
         }
+
+        // TODO: Add tests with folder and files exclusions
     }
 }

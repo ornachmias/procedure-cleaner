@@ -10,7 +10,6 @@ namespace PC.Scanner
 {
     public class CodeScanner
     {
-        public const int DefaultThreadsCount = -1;
         private readonly ICodeRepository _codeRepository;
         private readonly IStoredProceduresRepository _storedProceduresRepository;
 
@@ -28,10 +27,9 @@ namespace PC.Scanner
         }
 
         public IEnumerable<string> GetUnusedStoredProcedures(string codeRootPath, string storedProcedureRootPath,
-            int threads = DefaultThreadsCount, string[] excludedFileTypes = null, string[] excludedDirectories = null)
+            string[] excludedFileTypes = null, string[] excludedDirectories = null)
         {
-            if (threads == DefaultThreadsCount)
-                threads = Environment.ProcessorCount;
+            int threads = Environment.ProcessorCount;
 
             IEnumerable<string> storedProcedures =
                 _storedProceduresRepository.GetStoreProceduresNames(storedProcedureRootPath).ToList();
