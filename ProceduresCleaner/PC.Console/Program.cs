@@ -16,14 +16,14 @@ namespace PC.Console
 
             var excludedFileTypes =
                 ConfigurationManager.AppSettings["ExcludedFileExtensions"]
-                .Split(';').Select(x => x.ToLower()).ToArray();
+                .Split(';').Select(x => x.ToLower().Trim()).ToArray();
 
             if (!excludedFileTypes.Any())
                 excludedFileTypes = null;
 
             var excludedFolderPaths = 
                 ConfigurationManager.AppSettings["ExcludedFolderPaths"]
-                .Split(';').Select(x => x.ToLower()).ToArray();
+                .Split(';').Select(x => x.ToLower().Trim()).ToArray();
 
             excludedFolderPaths = excludedFolderPaths.Concat(parameters.ExcludedDirectories).ToArray();
             
@@ -58,7 +58,7 @@ namespace PC.Console
                 },
                 {
                     "e|ex=",
-                    v => parameters.ExcludedDirectories = v.Split(',')
+                    v => parameters.ExcludedDirectories = v.Split(',').Select(x=>x.Trim()).ToArray()
                 },
                 {
                     "h|help",

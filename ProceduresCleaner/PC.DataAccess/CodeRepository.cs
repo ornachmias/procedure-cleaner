@@ -17,10 +17,10 @@ namespace PC.DataAccess
             string[] files = Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories);
 
             if (excludedFileTypes != null)
-                files = files.Where(x => excludedFileTypes.All(y => !x.ToLower().EndsWith(y))).ToArray();
+                files = files.Where(x => excludedFileTypes.All(y => !x.ToLower().EndsWith(y.ToLower()))).ToArray();
 
             if (excludedDirectories != null)
-                files = files.Where(x => excludedDirectories.All(y=> !x.ToLower().Contains(y))).ToArray();
+                files = files.Where(x => excludedDirectories.All(y=> !x.ToLower().Contains(y.ToLower()))).ToArray();
 
             files = RemoveDuplicateFiles(files);
 
