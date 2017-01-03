@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Linq;
 using NDesk.Options;
+using PC.Common;
 using PC.Scanner;
 
 namespace PC.Console
@@ -31,13 +32,28 @@ namespace PC.Console
                 excludedFolderPaths = null;
 
             var codeScanner = new CodeScanner();
-            var unusedProcedures =
+
+            if (!parameters.FindNotImplementedProcedures)
+            {
+                var unusedProcedures =
                 codeScanner.GetUnusedStoredProcedures(parameters.CodePath, parameters.StoredProceduresPath,
                     excludedFileTypes, excludedFolderPaths);
 
-            foreach (var procedure in unusedProcedures)
+                foreach (var procedure in unusedProcedures)
+                {
+                    System.Console.WriteLine(procedure);
+                }
+            }
+            else
             {
-                System.Console.WriteLine(procedure);
+                var scanResults = codeScanner.GetNotImplementedProcedures(parameters.ProceduresIndication,
+                    parameters.CodePath, parameters.StoredProceduresPath, excludedFileTypes, excludedFolderPaths);
+
+                foreach (var result in scanResults)
+                {
+                    PrintScanResult(result);
+                    System.Console.WriteLine();
+                }
             }
         }
 
@@ -59,6 +75,14 @@ namespace PC.Console
                 {
                     "e|ex=",
                     v => parameters.ExcludedDirectories = v.Split(',').Select(x=>x.Trim()).ToArray()
+                },
+                {
+                    "i|implement=",
+                    v =>
+                    {
+                        parameters.FindNotImplementedProcedures = true;
+                        parameters.ProceduresIndication = v.Trim();
+                    }
                 },
                 {
                     "h|help",
@@ -97,6 +121,15 @@ namespace PC.Console
             System.Console.WriteLine();
             System.Console.WriteLine("e|exclude");
             System.Console.WriteLine("Partial directories paths separated by commas to exclude");
+            System.Console.WriteLine();
+            System.Console.WriteLine("i|implement");
+            System.Console.WriteLine("Find not implemented stored procedures by string indication");
+        }
+
+        private static void PrintScanResult(ScanResult result)
+        {
+            System.Console.WriteLine(result.FilePath);
+            System.Console.WriteLine(result.Line);
         }
 
         private class UserParameters
@@ -104,6 +137,8 @@ namespace PC.Console
             public string StoredProceduresPath { get; set; }
             public string CodePath { get; set; }
             public string[] ExcludedDirectories { get; set; }
+            public bool FindNotImplementedProcedures { get; set; }
+            public string ProceduresIndication { get; set; }
         }
     }
 }

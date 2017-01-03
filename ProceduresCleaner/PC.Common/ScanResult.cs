@@ -6,5 +6,6 @@
         public int LineNumber { get; set; }
         public string Line { get; set; }
         public string SearchPattern { get; set; }
+        public string FilePath { get; set; }
     }
 }

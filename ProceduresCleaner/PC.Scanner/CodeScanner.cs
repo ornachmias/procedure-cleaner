@@ -38,7 +38,8 @@ namespace PC.Scanner
             return FilterUnusedStoredProcedures(storedProcedures, scanResults);
         }
 
-        public IEnumerable<ScanResult> GetNotImplementedProcedures(string codeRootPath, string storedProcedureRootPath,
+        public IEnumerable<ScanResult> GetNotImplementedProcedures(string proceduresIndication,
+            string codeRootPath, string storedProcedureRootPath,
             string[] excludedFileTypes = null, string[] excludedDirectories = null)
         {
             int threads = Environment.ProcessorCount;
@@ -46,7 +47,8 @@ namespace PC.Scanner
             IEnumerable<string> storedProcedures =
                 _storedProceduresRepository.GetStoreProceduresNames(storedProcedureRootPath).ToList();
             IEnumerable<ScanResult> scanResults =
-                ScanCode(codeRootPath, new List<string> {"SP_"}, threads, excludedFileTypes, excludedDirectories);
+                ScanCode(codeRootPath, new List<string> {proceduresIndication}, 
+                            threads, excludedFileTypes, excludedDirectories);
 
             return FilterNotImplementedProcedures(storedProcedures, scanResults);
         }

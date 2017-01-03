@@ -51,7 +51,8 @@ namespace PC.DataAccess
                             Id = Guid.NewGuid().ToString(),
                             Line = lines[i],
                             SearchPattern = searchPattern,
-                            LineNumber = i
+                            LineNumber = i,
+                            FilePath = path
                         };
 
                         results.Add(scanResult);

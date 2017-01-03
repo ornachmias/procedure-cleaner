@@ -54,6 +54,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PC.Common\PC.Common.csproj">
+      <Project>{a3d57b3e-19b4-4257-b9ae-3b07193e34f3}</Project>
+      <Name>PC.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PC.Scanner\PC.Scanner.csproj">
       <Project>{95CFD1C4-C060-4CF3-8A5C-74AB0292A70C}</Project>
       <Name>PC.Scanner</Name>
