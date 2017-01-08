@@ -100,7 +100,7 @@ namespace PC.Scanner
 
             return
                 scanResults.Where(scanResult => 
-                    procedures.Any(x => scanResult.Line.ToLower().Contains(x.ToLower()))).ToList();
+                    procedures.All(x => !scanResult.Line.ToLower().Contains(x.ToLower()))).ToList();
         }
     }
 }

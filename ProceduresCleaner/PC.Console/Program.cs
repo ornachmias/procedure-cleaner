@@ -33,7 +33,7 @@ namespace PC.Console
 
             var codeScanner = new CodeScanner();
 
-            if (!parameters.FindNotImplementedProcedures)
+            if (string.IsNullOrEmpty(parameters.ProceduresIndication))
             {
                 var unusedProcedures =
                 codeScanner.GetUnusedStoredProcedures(parameters.CodePath, parameters.StoredProceduresPath,
@@ -78,11 +78,7 @@ namespace PC.Console
                 },
                 {
                     "i|implement=",
-                    v =>
-                    {
-                        parameters.FindNotImplementedProcedures = true;
-                        parameters.ProceduresIndication = v.Trim();
-                    }
+                    v => parameters.ProceduresIndication = v.Trim()
                 },
                 {
                     "h|help",
@@ -137,7 +133,6 @@ namespace PC.Console
             public string StoredProceduresPath { get; set; }
             public string CodePath { get; set; }
             public string[] ExcludedDirectories { get; set; }
-            public bool FindNotImplementedProcedures { get; set; }
             public string ProceduresIndication { get; set; }
         }
     }
