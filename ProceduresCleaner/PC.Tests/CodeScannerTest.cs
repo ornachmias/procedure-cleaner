@@ -145,6 +145,36 @@ namespace PC.Tests
             codeRepository.Verify(x => x.SearchFile("SecondCodeFile", It.IsAny<IEnumerable<string>>()), Times.Once);
         }
 
-        // TODO: Add tests with folder and files exclusions
+        [TestMethod]
+        public void GetNotImplementedProcedures_SingleFile_SingleThread_PartialOcurranceFound()
+        {
+            // Arrange
+            var storedProcedureRepository = new Mock<IStoredProceduresRepository>();
+            var codeRepository = new Mock<ICodeRepository>();
+
+            storedProcedureRepository.Setup(x => x.GetStoreProceduresNames(It.IsAny<string>()))
+                .Returns(new List<string> { "First_Stored_Procedure", "Second_Stored_Procedure" });
+            codeRepository.Setup(x => x.GetCodeFilesPaths(It.IsAny<string>(), null, null))
+                .Returns(new List<string> { "FirstCodeFile" });
+            var scanResult = new ScanResult
+            {
+                Id = "1",
+                Line = "Dummy line containing Third_Stored_Procedure",
+                LineNumber = 5,
+                SearchPattern = "_Stored_Procedure"
+            };
+
+            codeRepository.Setup(x => x.SearchFile(It.IsAny<string>(), It.IsAny<IEnumerable<string>>()))
+                .Returns(new List<ScanResult> { scanResult });
+            var codeScanner =
+                new CodeScanner(codeRepository.Object, storedProcedureRepository.Object);
+
+            // Act
+            var result = codeScanner.GetNotImplementedProcedures("_Stored_Procedure", "dummyPath", "dummyPath").ToList();
+
+            // Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual("Dummy line containing Third_Stored_Procedure", result.First().Line);
+        }
     }
 }
